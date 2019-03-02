@@ -1,0 +1,14 @@
+.container {
+    display: inline-grid;
+    border: 1px solid black;
+}
+
+.container div {
+    margin: 0 5px;
+}
+
+.err {
+    display: block;
+    margin: 5px;
+    color: red;
+}
