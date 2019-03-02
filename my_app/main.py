@@ -7,6 +7,8 @@ import asyncio
 import aiohttp
 import random
 
+from my_asyncio import MyAsync
+
 app = Flask(__name__)
 app.debug = True
 
@@ -58,14 +60,6 @@ async def async_add_phone(container, user):
     print(result)
     container[user] = result
 
-def get_set_event_loop():
-    try:
-        return asyncio.get_event_loop()
-    except RuntimeError as e:
-        if e.args[0].startswith('There is no current event loop'):
-            asyncio.set_event_loop(asyncio.new_event_loop())
-            return asyncio.get_event_loop()
-        raise e
 
 @app.route('/page/<page>')
 def get_page(page=None):
@@ -77,15 +71,11 @@ def get_page(page=None):
         res_json = json.loads(content)
         users = res_json.get('users')
         if users:
-            loop = get_set_event_loop()
-            async_tasks = []
-
             for user in users:
                 cu = user.get('user')
                 user_name = cu.get('username')
 
-                task = loop.create_task(async_add_phone(async_container, user_name))
-                async_tasks.append(task)
+                MyAsync.add_task(async_add_phone(async_container, user_name))
 
                 # user_info = get_user_info(user_name)
                 data.append({
@@ -96,18 +86,19 @@ def get_page(page=None):
                     # 'tel': user_info.get('tel')
                 })
 
-            loop.run_until_complete(asyncio.wait(async_tasks))
-            loop.close()
+            MyAsync.release()
 
     except:
         import traceback
         err = traceback.format_exc()
 
     data.sort(key=lambda i: i.get('fol'), reverse=True)
+    
     print(async_container)
     if async_container:
         for user in data:
             user['tel'] = set(async_container.get(user.get('acc')).get('tel')) if user and user.get('acc') else ''
+
     return render_template('main.html', data=data, err=err, add_info='')
 
 app.run(debug=True)
