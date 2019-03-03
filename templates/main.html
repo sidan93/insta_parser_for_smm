@@ -21,15 +21,25 @@
           <th scope="col">Имя</ht>
           <th scope="col">Подписчиков</th>
           <th scope="col">Телефон</th>
+          <th scope="col">Ссылки</th>
         </tr>
       </thead>
       <tbody>
         {% for d in data %}
           <tr>
             <th scope="row">{{d.key}}</th>
-            <td><a href="https://www.instagram.com/{{d.acc}}/" target="_blank">{{d.name}} ({{d.acc}})</a></td>
+            <td>
+              {% if d.pic %}
+                <img src="{{d.pic}}" height=30/>
+              {% endif %}
+              <a href="https://www.instagram.com/{{d.acc}}/" target="_blank">{{d.name}} ({{d.acc}})</a></td>
             <td>{{d.fol}}</td>
             <td>{{d.tel}}</td>
+            <td>
+              {% if d.links %}
+                <a href="{{d.links}}" target="_blank">{{d.links}}</a>
+              {% endif %}
+            </td>
           </tr>
         {% endfor %}
       </tbody>

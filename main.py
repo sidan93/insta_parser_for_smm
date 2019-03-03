@@ -50,6 +50,7 @@ def get_page(page=None):
                     'acc': user_name,
                     'name': cu.get('full_name'),
                     'fol': cu.get('follower_count'),
+                    'pic': cu.get('profile_pic_url')
                 })
 
             async_loop.release()
@@ -65,7 +66,14 @@ def get_page(page=None):
     print(async_container)
     if async_container:
         for user in data:
-            user['tel'] = set(async_container.get(user.get('acc')).get('tel')) if user and user.get('acc') else ''
+            user_data = async_container.get(user.get('acc')) if user and user.get('acc') else None
+            user_data = user_data or dict()
+            
+            if user_data.get('err', False):
+                user['tel'] = 'Не удалось загрузить данные'
+            else:
+                user['tel'] = user_data.get('tel') or 'Номер нет'
+                user['links'] = user_data.get('links')
 
     return render_template('main.html', data=data, err=err, add_info='')
 
